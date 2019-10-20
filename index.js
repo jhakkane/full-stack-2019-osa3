@@ -12,7 +12,7 @@ app.use(cors())
 morgan.token('bodytext', parseBodyText)
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :bodytext'))
 
-function parseBodyText(req, res) {
+function parseBodyText(req) {
   return req.method === 'POST' ? JSON.stringify(req.body) : ''
 }
 
@@ -37,8 +37,8 @@ app.get('/api/persons', (req, res, next) => {
 app.post('/api/persons', (req, res, next) => {
   const body = req.body
   if (!body.name || !body.number) {
-    return res.status(400).json({ 
-      error: 'person data is missing' 
+    return res.status(400).json({
+      error: 'person data is missing'
     })
   }
 
@@ -56,7 +56,7 @@ app.post('/api/persons', (req, res, next) => {
 
 app.delete('/api/persons/:id', (req, res, next) => {
   Person.findByIdAndRemove(req.params.id)
-    .then(result => {
+    .then(() => {
       res.status(204).end()
     })
     .catch(error => next(error))
@@ -68,7 +68,7 @@ app.put('/api/persons/:id', (req, res, next) => {
     name: body.name,
     number: body.number
   }
-  Person.findByIdAndUpdate(req.params.id, person, {new: true})
+  Person.findByIdAndUpdate(req.params.id, person, { new: true })
     .then(updatedPerson => {
       res.json(updatedPerson.toJSON())
     })
@@ -95,7 +95,7 @@ app.use(unknownEndpoint)
 const errorHandler = (error, req, res, next) => {
   console.log('ErrorHandler: ', error.message)
 
-  if (error.name === 'CastError' && error.kind == 'ObjectId') {
+  if (error.name === 'CastError' && error.kind === 'ObjectId') {
     return res.status(400).send({error: 'malformatted id'})
   } else if (error.name === 'ValidationError') {
     return res.status(400).json({ error: error.message })
