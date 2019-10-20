@@ -42,25 +42,16 @@ app.post('/api/persons', (req, res, next) => {
     })
   }
 
-  Person.find({}).then(people => {
-    let personExists = people.find(person => person.name === body.name)
-    if (personExists) {
-      return res.status(409).json({ 
-        error: 'person is already on the list'
-      })
-    } else {
-      const person = new Person({
-        name: body.name,
-        number: body.number
-      })
-    
-      person.save().then(savedPerson => {
-        res.json(savedPerson.toJSON())
-      })
-      .catch(error => next(error))
-    }
+  const person = new Person({
+    name: body.name,
+    number: body.number
   })
-  .catch(error => next(error))
+
+  person.save()
+    .then(savedPerson => {
+      res.json(savedPerson.toJSON())
+    })
+    .catch(error => next(error))
 })
 
 app.delete('/api/persons/:id', (req, res, next) => {
@@ -106,6 +97,8 @@ const errorHandler = (error, req, res, next) => {
 
   if (error.name === 'CastError' && error.kind == 'ObjectId') {
     return res.status(400).send({error: 'malformatted id'})
+  } else if (error.name === 'ValidationError') {
+    return res.status(400).json({ error: error.message })
   }
 
   next(error);
