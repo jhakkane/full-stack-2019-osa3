@@ -1,7 +1,7 @@
 const mongoose = require('mongoose')
 
 if (process.argv.length < 3) {
-  console.log('anna salasana!')
+  console.log('give password!')
   process.exit(1)
 }
 
